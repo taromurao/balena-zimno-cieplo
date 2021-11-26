@@ -1,0 +1,9 @@
+{
+  "name": "handheld",
+  "version": "1.0.0",
+  "main": "index.ts",
+  "repository": "https://github.com/taromurao/balena-zimno-cieplo",
+  "author": "Taro Murao",
+  "license": "MIT",
+  "private": false
+}
