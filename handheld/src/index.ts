@@ -23,7 +23,7 @@ function tell(msg: Message) {
 }
 
 async function zimnoCieplo(previousDistance?: number): Promise<never> {
-    await exec(`truncate -s 0 ${SCAN_OUT}`)
+    await sleep(SLEEP_DURATION);
     const scanResult = await fs.readFile(SCAN_OUT, 'utf-8');
     const signalStrengths = getReadings(scanResult);
     const rssi = signalStrengths.find(x => x.uuid = BEACON_UUID)?.rssi;
@@ -43,7 +43,7 @@ async function zimnoCieplo(previousDistance?: number): Promise<never> {
         tell(Message.NOT_FOUND);
     }
 
-    await sleep(SLEEP_DURATION);
+    await exec(`truncate -s 0 ${SCAN_OUT}`)
     return await zimnoCieplo(currentDistance);
 };
 
