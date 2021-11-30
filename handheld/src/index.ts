@@ -32,7 +32,7 @@ async function zimnoCieplo(previousDistance?: number): Promise<never> {
     await sleep(SLEEP_DURATION);
     const scanResult = await fs.readFile(SCAN_OUT, 'utf-8');
     const signalStrengths = getReadings(scanResult);
-    const rssis = signalStrengths.find(x => x.uuid = BEACON_UUID)?.map(x => x.rssi);
+    const rssis = signalStrengths.filter(x => x.uuid = BEACON_UUID)?.map(x => x.rssi);
     const currentDistance = rssis.length > 0 ? getDistance(rssis) : undefined;
     logger.info(`Current distance: ${currentDistance}m`);
 
