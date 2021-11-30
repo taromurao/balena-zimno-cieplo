@@ -23,12 +23,18 @@ function tell(msg: Message) {
     logger.info(msg);
 }
 
+function getDistance(rssis: ReadonlyArray<number>): number {
+    const avrgRssi = rssis.reduce((acc, x) => (acc + x) / rssis.length, 0);
+    return Math.exp((TX_POWER - avrgRssi) / 10 / ENVIRONMENTAL_FACTOR);
+}
+
 async function zimnoCieplo(previousDistance?: number): Promise<never> {
     await sleep(SLEEP_DURATION);
     const scanResult = await fs.readFile(SCAN_OUT, 'utf-8');
     const signalStrengths = getReadings(scanResult);
-    const rssi = signalStrengths.find(x => x.uuid = BEACON_UUID)?.rssi;
-    const currentDistance = rssi ? ( TX_POWER - rssi ) / 10 / ENVIRONMENTAL_FACTOR : undefined;
+    const rssis = signalStrengths.find(x => x.uuid = BEACON_UUID)?.map(x => x.rssi);
+    const currentDistance = rssis.length > 0 ? getDistance(rssis) : undefined;
+    logger.info(`Current distance: ${currentDistance}m`);
 
     if (currentDistance) {
         if (currentDistance <= VERY_CLOSE_DISTANCE) {
