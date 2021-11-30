@@ -3,6 +3,7 @@ import { promises as fs } from 'fs';
 import { getReadings } from './utils';
 import {
     BEACON_UUID,
+    ENVIRONMENTAL_FACTOR,
     SCAN_OUT,
     SLEEP_DURATION,
     STARTING,
@@ -27,7 +28,7 @@ async function zimnoCieplo(previousDistance?: number): Promise<never> {
     const scanResult = await fs.readFile(SCAN_OUT, 'utf-8');
     const signalStrengths = getReadings(scanResult);
     const rssi = signalStrengths.find(x => x.uuid = BEACON_UUID)?.rssi;
-    const currentDistance = rssi ? 1 / ( rssi / TX_POWER) : undefined;
+    const currentDistance = rssi ? ( TX_POWER - rssi ) / 10 / ENVIRONMENTAL_FACTOR : undefined;
 
     if (currentDistance) {
         if (currentDistance <= VERY_CLOSE_DISTANCE) {
