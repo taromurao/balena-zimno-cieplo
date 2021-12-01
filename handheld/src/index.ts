@@ -30,10 +30,9 @@ function getDistance(rssis: ReadonlyArray<number>): number | undefined {
     if (rssis.length === 0) {
         return undefined;
     } else {
-        const ratio = average(rssis) / TX_POWER;
-        return ratio < 1 ?
-            Math.pow(ratio, 10) :
-            0.89976 * Math.pow(ratio, 7.7095) + 0.111;
+        const diff = TX_POWER - average(rssis);
+        return diff <= 0 ?
+            1 : Math.sqrt(diff) + 1;
     }
 }
 

@@ -10,6 +10,8 @@ services:
     restart: always
     privileged: true
     network_mode: host
+    devices:
+      - /dev/snd:/dev/snd
 
   # mqtt:
   #   image: eclipse-mosquitto:1.6.15

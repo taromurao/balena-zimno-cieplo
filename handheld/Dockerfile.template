@@ -17,6 +17,8 @@ RUN install_packages bluez-deprecated bluez-btmon
 
 WORKDIR /app
 
+COPY audio ./audio
+
 COPY --from=build /app/node_modules node_modules
 
 COPY --from=build /app/dist dist
