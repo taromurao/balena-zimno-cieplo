@@ -3,5 +3,5 @@ export const SCAN_OUT = 'scan.txt';
 export const STARTING = 'Starting to search...';
 export const SLEEP_DURATION = 5000;
 export const TX_POWER = -65;
-export const ENVIRONMENTAL_FACTOR = 3;
+export const ENVIRONMENTAL_FACTOR = 2;
 export const VERY_CLOSE_DISTANCE = 1.5;
