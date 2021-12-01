@@ -68,4 +68,3 @@ async function zimnoCieplo(previousDistance?: number): Promise<never> {
     logger.info(STARTING);
     await zimnoCieplo();
 })();
-return xs.reduce((acc, x) => (acc + x), 0) / xs.length;
