@@ -3,10 +3,9 @@ import { promises as fs } from 'fs';
 import { getReadings } from './utils';
 import {
     BEACON_UUID,
-    ENVIRONMENTAL_FACTOR,
+    DISTANCE_TORRELANCE,
     SCAN_OUT,
     SLEEP_DURATION,
-    STARTING,
     TX_POWER,
     VERY_CLOSE_DISTANCE
 } from './consts';
@@ -38,6 +37,10 @@ function getDistance(rssis: ReadonlyArray<number>): number | undefined {
     }
 }
 
+function absoluteDiff(x: number, y: number): number {
+    return Math.abs(x - y);
+}
+
 async function zimnoCieplo(previousDistance?: number): Promise<never> {
     await sleep(SLEEP_DURATION);
     const scanResult = await fs.readFile(SCAN_OUT, 'utf-8');
@@ -47,13 +50,17 @@ async function zimnoCieplo(previousDistance?: number): Promise<never> {
     logger.info(`Current distance: ${currentDistance}m`);
 
     if (currentDistance) {
-        if (currentDistance <= VERY_CLOSE_DISTANCE) {
-            tell(Message.VERY_CLOSE);
+        if (absoluteDiff(previousDistance, currentDistance) < DISTANCE_TORRELANCE) {
+            tell(Message.NOTHING);
         } else {
-            if (!previousDistance || currentDistance <= previousDistance) {
-                tell(Message.NEARING);
+            if (currentDistance <= VERY_CLOSE_DISTANCE) {
+                tell(Message.VERY_CLOSE);
             } else {
-                tell(Message.GETTING_FARTHER)
+                if (!previousDistance || currentDistance <= previousDistance) {
+                    tell(Message.NEARING);
+                } else {
+                    tell(Message.GETTING_FARTHER)
+                }
             }
         }
     } else {
@@ -65,6 +72,6 @@ async function zimnoCieplo(previousDistance?: number): Promise<never> {
 };
 
 (async () => {
-    logger.info(STARTING);
+    tell(Message.STARTING);
     await zimnoCieplo();
 })();
