@@ -50,11 +50,11 @@ async function zimnoCieplo(previousDistance?: number): Promise<never> {
     logger.info(`Current distance: ${currentDistance}m`);
 
     if (currentDistance) {
-        if (absoluteDiff(previousDistance, currentDistance) < DISTANCE_TORRELANCE) {
-            tell(Message.NOTHING);
+        if (currentDistance <= VERY_CLOSE_DISTANCE) {
+            tell(Message.VERY_CLOSE);
         } else {
-            if (currentDistance <= VERY_CLOSE_DISTANCE) {
-                tell(Message.VERY_CLOSE);
+            if (absoluteDiff(previousDistance, currentDistance) < DISTANCE_TORRELANCE) {
+                tell(Message.NOTHING);
             } else {
                 if (!previousDistance || currentDistance <= previousDistance) {
                     tell(Message.NEARING);
