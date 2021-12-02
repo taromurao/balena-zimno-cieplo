@@ -1,0 +1,16 @@
+FROM balenalib/%%BALENA_MACHINE_NAME%%-debian:buster-run
+
+RUN apt-get update && apt-get install -y \
+     bluez \
+     pulseaudio pavucontrol pulseaudio-utils \
+     pulseaudio-module-zeroconf pulseaudio-module-bluetooth \
+     alsa-utils \
+     && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+COPY default.pa /etc/pulse/default.pa
+COPY daemon.conf /etc/pulse/daemon.conf
+
+COPY start.sh /start.sh
+COPY connect_bluetooth.sh /connect_bluetooth.sh
+RUN  chmod a+x /connect_bluetooth.sh
+CMD ["bash", "/start.sh"]

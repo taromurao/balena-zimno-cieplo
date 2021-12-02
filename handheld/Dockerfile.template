@@ -9,11 +9,13 @@ COPY tsconfig.json ./
 
 COPY src ./
 
+RUN install_packages
+
 RUN JOBS=MAX npm install --unsafe-perm && npm cache verify && rm -rf /tmp/* && npm run build
 
-FROM balenalib/%%BALENA_MACHINE_NAME%%-alpine-node
+FROM balenalib/%%BALENA_MACHINE_NAME%%-debian:buster-run
 
-RUN install_packages bluez-deprecated bluez-btmon
+RUN install_packages bluez pulseaudio pavucontrol npm
 
 WORKDIR /app
 
