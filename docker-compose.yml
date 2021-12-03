@@ -4,47 +4,42 @@ volumes:
   influxdb-data:
   dashboard-data:
   pulseaudio_unix_socket:  # shared volume where pulseaudio unix socket will be stored.
+  pulse:
   
 services:
-  handheld:
-    build: ./handheld
+  zinocieplo:
+    build: ./zimnocieplo
     restart: always
     privileged: true
     network_mode: host
     environment:
-      - PULSE_SERVER=tcp:localhost:4713
-      - DBUS_SYSTEM_BUS_ADDRESS=unix:path=/host/run/dbus/system_bus_socket
+      - PULSE_SERVER=tcp:audio:4317
     depends_on:
-      - pulseaudio-server
+      - audio
+      - bluetooth
     cap_add:
       - NET_ADMIN
-    labels:
-      io.balena.features.dbus: '1'
-      io.balena.features.kernel-modules: '1'
-
-  pulseaudio-server:
-    build: ./pulseaudio-server
-    restart: always
+    
+  bluetooth:
+    image: tmigone/bluetooth:raspberrypi0-2w-64
     network_mode: host
+    cap_add:
+      - NET_ADMIN
+    restart: on-failure
+    labels:
+      io.balena.features.dbus: 1
+    environment:
+      - BLUETOOTH_CONNECT_DEVICE=50:C2:ED:96:90:AF
+  
+  audio:
+    image: balenablocks/audio
     privileged: true
     labels:
-      io.balena.features.dbus: '1'
-      io.balena.features.kernel-modules: '1'
-    devices:
-      - "/dev/snd:/dev/snd/"
-      - "/dev/bus/usb:/dev/bus/usb"
-    cap_add:
-      - NET_ADMIN
+      io.balena.features.dbus: 1  # Only required for bluetooth support
     ports:
-      - "4713:4713"
+      - 4317:4317                 # Only required if using PA over TCP socket
     volumes:
-      - 'pulseaudio_unix_socket:/pulseaudio' # folder where pulseAudio unix socket is created.
-      - bluetooth_device_address: 50:C2:ED:96:90:AF
-    environment:
-      - UDEV=1
-      - PGID=1000
-      - PUID=1000
-      - DBUS_SYSTEM_BUS_ADDRESS=unix:path=/host/run/dbus/system_bus_socket
+      - 'pulse:/run/pulse'
   
   # mqtt:
   #   image: eclipse-mosquitto:1.6.15
