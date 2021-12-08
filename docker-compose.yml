@@ -5,13 +5,15 @@ volumes:
   dashboard-data:
   pulseaudio_unix_socket:  # shared volume where pulseaudio unix socket will be stored.
   pulse:
+
+networks:
+  zimnocieplo:
   
 services:
   zinocieplo:
     build: ./zimnocieplo
     restart: always
     privileged: true
-    network_mode: host
     environment:
       - PULSE_SERVER=tcp:audio:4317
     depends_on:
@@ -19,6 +21,8 @@ services:
       - bluetooth
     cap_add:
       - NET_ADMIN
+    networks:
+      - zimnocieplo
     
   bluetooth:
     image: tmigone/bluetooth:raspberrypi0-2w-64
@@ -40,6 +44,8 @@ services:
       - 4317:4317                 # Only required if using PA over TCP socket
     volumes:
       - 'pulse:/run/pulse'
+    networks:
+      - zimnocieplo
   
   # mqtt:
   #   image: eclipse-mosquitto:1.6.15
