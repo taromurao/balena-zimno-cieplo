@@ -1,29 +1,38 @@
 version: '2'
 
 volumes:
-  influxdb-data:
-  dashboard-data:
-  pulseaudio_unix_socket:  # shared volume where pulseaudio unix socket will be stored.
-  pulse:
+  influxdb-data: null
+  dashboard-data: null
+  pulseaudio_unix_socket: null # shared volume where pulseaudio unix socket will be stored.
+  pulse: null
+  ble-emitter-data: null
 
 networks:
-  zimnocieplo:
-  
+  zimnocieplo: null
+
 services:
-  zinocieplo:
-    build: ./zimnocieplo
-    restart: always
+  # zinocieplo:
+  #   build: ./zimnocieplo
+  #   restart: always
+  #   privileged: true
+  #   environment:
+#     - PULSE_SERVER=tcp:audio:4317
+  #   depends_on:
+  #     - audio
+  #     - bluetooth
+  #   networks:
+  #     - zimnocieplo
+
+  ble_emitter:
+    build: ./ble-emitter
+    network_mode: host
+    restart: on_failure
     privileged: true
-    environment:
-      - PULSE_SERVER=tcp:audio:4317
-    depends_on:
-      - audio
-      - bluetooth
     cap_add:
       - NET_ADMIN
-    networks:
-      - zimnocieplo
-    
+    volumes:
+      - ble-emitter-data:/var/ble-emitter
+
   bluetooth:
     image: tmigone/bluetooth:raspberrypi0-2w-64
     network_mode: host
@@ -34,27 +43,24 @@ services:
       io.balena.features.dbus: 1
     environment:
       - BLUETOOTH_CONNECT_DEVICE=50:C2:ED:96:90:AF
-  
+
   audio:
     image: balenablocks/audio
     privileged: true
     labels:
-      io.balena.features.dbus: 1  # Only required for bluetooth support
+      io.balena.features.dbus: 1 # Only required for bluetooth support
+    networks:
+      - zimnocieplo
+
+  mqtt:
+    image: eclipse-mosquitto:1.6.15
+    restart: always
     ports:
-      - 4317:4317                 # Only required if using PA over TCP socket
-    volumes:
-      - 'pulse:/run/pulse'
+      - '1883:1883'
     networks:
       - zimnocieplo
   
-  # mqtt:
-  #   image: eclipse-mosquitto:1.6.15
-  #   restart: always
-  #   privileged: false
-  #   ports:
-  #     - '1883:1883'
-
-  # connector:
+      # connector:
   #   image: balenablocks/connector:latest
   #   restart: always
   #   privileged: true

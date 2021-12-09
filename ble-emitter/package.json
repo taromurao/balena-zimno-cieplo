@@ -1,0 +1,26 @@
+{
+    "name": "ble-emitter",
+    "version": "1.0.0",
+    "main": "index.ts",
+    "repository": "https://github.com/taromurao/balena-zimno-cieplo",
+    "author": "Taro Murao",
+    "license": "MIT",
+    "private": false,
+    "dependencies": {
+        "rxjs": "^7.4.0",
+        "tail": "^2.2.4",
+        "winston": "^3.3.3"
+    },
+    "scripts": {
+        "build": "tsc",
+        "start": "node dist/index.js",
+        "test": "jest"
+    },
+    "devDependencies": {
+        "@types/jest": "^27.0.3",
+        "jest": "^27.4.2",
+        "ts-jest": "^27.0.7",
+        "ts-node": "^10.4.0",
+        "typescript": "^4.5.2"
+    }
+}
