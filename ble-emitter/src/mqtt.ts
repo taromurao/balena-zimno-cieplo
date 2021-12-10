@@ -12,6 +12,7 @@ const options = {
     clientId: 'ble-emitter',
 };
 
+// Workaround: TypeScript compile freaks out without ts-ignore on RPi
 // @ts-ignore
 export const client = mqtt.connect(MQTT_SERVER_URL, options);
 
