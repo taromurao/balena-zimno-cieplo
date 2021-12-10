@@ -6,3 +6,4 @@ export const ENVIRONMENTAL_FACTOR = 2;
 export const VERY_CLOSE_DISTANCE = 1.5;
 export const DISTANCE_TORRELANCE = 0.3;
 export const RSSI_ENTRY_LINES = 6;
+export const EMISSION_INTERVAL = 5000;

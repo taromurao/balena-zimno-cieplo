@@ -1,13 +1,23 @@
 import { BehaviorSubject, Observable } from 'rxjs';
-import { filter, map, scan, tap, withLatestFrom } from 'rxjs/operators';
+import {
+    bufferTime,
+    filter,
+    map,
+    pairwise,
+    scan,
+    startWith,
+    tap,
+    withLatestFrom
+} from 'rxjs/operators';
 import { Tail } from 'tail';
 import * as path from 'path';
 import { State } from 'kalman-filter';
 import { kFilter } from './kalman-filter';
 
-import { BEACON_UUID, RSSI_ENTRY_LINES, SCAN_OUT, TX_POWER } from './consts';
+import { BEACON_UUID, EMISSION_INTERVAL, RSSI_ENTRY_LINES, SCAN_OUT, TX_POWER } from './consts';
 import { baseLogger } from './logging';
 import { sleep } from './utils';
+import { Distance } from './distance';
 
 const logger = baseLogger.child({ module: 'BleEmitter' });
 
@@ -18,7 +28,7 @@ export class BleEmitter {
     async start() {
         logger.info('Starting BLE Emitter service...');
 
-        $distance.subscribe(console.debug);
+        $emitWithInterval.subscribe(console.debug);
 
         this.tail.on("line", (data: string) => {
             $btmonLines.next(data);
@@ -54,6 +64,19 @@ const $distance: Observable<number> = $estimate
         map(getDistance),
     )
 
+const $emitWithInterval: Observable<Distance> = $distance
+    .pipe(
+        bufferTime(EMISSION_INTERVAL),
+        map(takeLast),
+        startWith(null),
+        pairwise(),
+        map(([previous, current]) => ({
+            type: 'BLE',
+            previous,
+            current
+        }))
+    );
+
 $observation
     .pipe(
         withLatestFrom($estimate),
@@ -62,6 +85,10 @@ $observation
         tap(x => $estimate.next(x)),
     )
     .subscribe();
+
+function takeLast(xs: ReadonlyArray<number>): number | null {
+    return xs.length > 0 ? xs[xs.length - 1] : null;
+}
 
 function takeLastN(n: number) {
     return scan((acc: Array<string>, val: string) => {
