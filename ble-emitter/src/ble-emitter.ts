@@ -1,7 +1,9 @@
-import { BehaviorSubject } from 'rxjs';
-import { filter, map, scan, tap } from 'rxjs/operators';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { filter, map, scan, tap, withLatestFrom } from 'rxjs/operators';
 import { Tail } from 'tail';
 import * as path from 'path';
+import { State } from 'kalman-filter';
+import { kFilter } from './kalman-filter';
 
 import { BEACON_UUID, RSSI_ENTRY_LINES, SCAN_OUT } from './consts';
 import { baseLogger } from './logging';
@@ -12,20 +14,12 @@ const logger = baseLogger.child({ module: 'BleEmitter' });
 export class BleEmitter {
     beaconUUID: string = BEACON_UUID;
     tail = new Tail(path.join('/var', 'ble-emitter', SCAN_OUT));
-    $btmonLines: BehaviorSubject<string> = new BehaviorSubject('');
+    $btmonLines = $btmonLines;
 
     async start() {
         logger.info('Starting BLE Emitter service...');
 
-        this.$btmonLines
-            .pipe(
-                takeLastN(RSSI_ENTRY_LINES),
-                map(getRSSI),
-                filter(isNotNull),
-                filter(uuidMatches),
-                map(({ rssi }) => rssi),
-            )
-            .subscribe(logger.info);
+        $estimate.subscribe(x => console.debug(x?.mean[0]));
 
         this.tail.on("line", (data: string) => {
             this.$btmonLines.next(data);
@@ -40,6 +34,28 @@ export class BleEmitter {
         }
     }
 }
+
+const $btmonLines: BehaviorSubject<string> = new BehaviorSubject('');
+
+const $observation = $btmonLines
+    .pipe(
+        takeLastN(RSSI_ENTRY_LINES),
+        map(getRSSI),
+        filter(isNotNull),
+        filter(uuidMatches),
+        map(({ rssi }) => rssi),
+    )
+
+const $estimate: BehaviorSubject<State> = new BehaviorSubject(null);
+
+$observation
+    .pipe(
+        withLatestFrom($estimate),
+        map(([observation, previousCorrected]) =>
+            kFilter.filter({ previousCorrected, observation })),
+        tap(x => $estimate.next(x)),
+    )
+
 
 function takeLastN(n: number) {
     return scan((acc: Array<string>, val: string) => {

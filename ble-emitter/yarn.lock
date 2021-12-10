@@ -508,6 +508,18 @@
     "@types/yargs" "^16.0.0"
     chalk "^4.0.0"
 
+"@rayyamhk/complex@1.0.10":
+  version "1.0.10"
+  resolved "https://registry.yarnpkg.com/@rayyamhk/complex/-/complex-1.0.10.tgz#6daa9c1bf4b6a86b2e1414a6aa8a1f32ef6a8ace"
+  integrity sha512-0HGH6SDcOd34zQVO97pfnIU6ul/qu0WkShZdupLLS3e5IEyNSkaX7mgVsDcWLpFNxLRs5RL2wS7iIYbsEp9MZg==
+
+"@rayyamhk/matrix@^1.0.5":
+  version "1.0.8"
+  resolved "https://registry.yarnpkg.com/@rayyamhk/matrix/-/matrix-1.0.8.tgz#207649294a59bedf302fc714cd393abfe67e9bf9"
+  integrity sha512-EIvEnmcL4q5FMb/g20/FxoZnewkbiiSY4S0+TWu+jkAKF4E/p8ocUN3CET0AXUVJwaA7t8drtBwGNFE8qAgAxg==
+  dependencies:
+    "@rayyamhk/complex" "1.0.10"
+
 "@sinonjs/commons@^1.7.0":
   version "1.8.3"
   resolved "https://registry.yarnpkg.com/@sinonjs/commons/-/commons-1.8.3.tgz#3802ddd21a50a949b6721ddd72da36e67e7f1b2d"
@@ -1959,6 +1971,14 @@ json5@2.x, json5@^2.1.2:
   dependencies:
     minimist "^1.2.5"
 
+kalman-filter@^1.9.2:
+  version "1.9.2"
+  resolved "https://registry.yarnpkg.com/kalman-filter/-/kalman-filter-1.9.2.tgz#a1e6f312c1e67f06257868fbd83fe41ca858e029"
+  integrity sha512-/e9ybLw8tP2xhUE9Ck10wRseZngOu1XZVaj7PXOWJkW3DU+zShniviT3dsMdLFItm/MM7bINCEyPMffDVcuCPA==
+  dependencies:
+    "@rayyamhk/matrix" "^1.0.5"
+    matrix-inverse "^2.0.0"
+
 kleur@^3.0.3:
   version "3.0.3"
   resolved "https://registry.yarnpkg.com/kleur/-/kleur-3.0.3.tgz#a79c9ecc86ee1ce3fa6206d1216c501f147fc07e"
@@ -2035,6 +2055,11 @@ makeerror@1.0.12:
   integrity sha512-JmqCvUhmt43madlpFzG4BQzG2Z3m6tvQDNKdClZnO3VbIudJYmxsT0FNJMeiB2+JTSlTQTSbU8QdesVmwJcmLg==
   dependencies:
     tmpl "1.0.5"
+
+matrix-inverse@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/matrix-inverse/-/matrix-inverse-2.0.0.tgz#2e8db33f8b977bd5e3b03f31d2fae89c2278203b"
+  integrity sha512-iUZfjmnAEDah54qLlj63PYFnZvcCwW+mhfYgf3KrtDn1ruyVE5vFrEeJ77RfsHaqMN/L3ZLnP+5/O2E7bgKEvQ==
 
 merge-stream@^2.0.0:
   version "2.0.0"
