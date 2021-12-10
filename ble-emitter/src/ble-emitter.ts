@@ -14,21 +14,39 @@ import * as path from 'path';
 import { State } from 'kalman-filter';
 import { kFilter } from './kalman-filter';
 
-import { BEACON_UUID, EMISSION_INTERVAL, RSSI_ENTRY_LINES, SCAN_OUT, TX_POWER } from './consts';
+import {
+    BEACON_UUID,
+    EMISSION_INTERVAL,
+    MQTT_DISTANCE_TOPIC,
+    RSSI_ENTRY_LINES,
+    SCAN_OUT,
+    TX_POWER,
+} from './consts';
 import { baseLogger } from './logging';
 import { sleep } from './utils';
 import { Distance } from './distance';
+import { client } from './mqtt';
 
 const logger = baseLogger.child({ module: 'BleEmitter' });
 
 export class BleEmitter {
     beaconUUID: string = BEACON_UUID;
     tail = new Tail(path.join('/var', 'ble-emitter', SCAN_OUT));
+    mqttClient;
+
+    constructor() {
+        this.mqttClient = client;
+        this.mqttClient.on('connect', () => {
+            this.mqttClient.subscribe(MQTT_DISTANCE_TOPIC, error => { });
+        });
+    }
 
     async start() {
         logger.info('Starting BLE Emitter service...');
 
-        $emitWithInterval.subscribe(console.debug);
+        $emitWithInterval.subscribe(x => {
+            this.mqttClient.publish(MQTT_DISTANCE_TOPIC, JSON.stringify(x));
+        });
 
         this.tail.on("line", (data: string) => {
             $btmonLines.next(data);

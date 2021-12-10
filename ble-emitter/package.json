@@ -8,6 +8,7 @@
     "private": false,
     "dependencies": {
         "kalman-filter": "^1.9.2",
+        "mqtt": "^4.2.8",
         "rxjs": "^7.4.0",
         "tail": "^2.2.4",
         "winston": "^3.3.3"

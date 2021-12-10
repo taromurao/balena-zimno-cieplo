@@ -7,3 +7,5 @@ export const VERY_CLOSE_DISTANCE = 1.5;
 export const DISTANCE_TORRELANCE = 0.3;
 export const RSSI_ENTRY_LINES = 6;
 export const EMISSION_INTERVAL = 5000;
+export const MQTT_SERVER_URL = 'mqtt://localhost:1883';
+export const MQTT_DISTANCE_TOPIC = 'distance';

@@ -3,6 +3,7 @@ import * as winston from 'winston';
 const { combine, timestamp, json } = winston.format;
 
 export const baseLogger = winston.createLogger({
+    level: 'debug',
     transports: [
         new winston.transports.Console()
     ],
