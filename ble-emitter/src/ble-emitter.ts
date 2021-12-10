@@ -11,8 +11,7 @@ import {
 } from 'rxjs/operators';
 import { Tail } from 'tail';
 import * as path from 'path';
-import { State } from 'kalman-filter';
-import { kFilter } from './kalman-filter';
+import { kFilter } from './k-filter';
 
 import {
     BEACON_UUID,
@@ -73,7 +72,7 @@ const $observation = $btmonLines
         map(({ rssi }) => rssi),
     )
 
-const $estimate: BehaviorSubject<State> = new BehaviorSubject(null);
+const $estimate: BehaviorSubject<any> = new BehaviorSubject(null);
 
 const $distance: Observable<number> = $estimate
     .pipe(

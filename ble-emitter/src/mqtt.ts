@@ -12,6 +12,7 @@ const options = {
     clientId: 'ble-emitter',
 };
 
+// @ts-ignore
 export const client = mqtt.connect(MQTT_SERVER_URL, options);
 
 client.on('reconnect', (error) => {

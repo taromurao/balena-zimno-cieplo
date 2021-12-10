@@ -1,29 +1,20 @@
-FROM balenalib/%%BALENA_MACHINE_NAME%%-ubuntu-node:14.18.1-bionic-build AS build
-
-WORKDIR /app 
-
-# Copies the package.json first for better cache on later pushes
-COPY package*.json ./
-
-COPY tsconfig.json ./
-
-COPY src ./
-
-RUN install_packages
-
-RUN JOBS=MAX npm install --unsafe-perm && npm cache verify && rm -rf /tmp/*
-
-RUN npm run build
-
 FROM balenalib/%%BALENA_MACHINE_NAME%%-alpine-node
 
 RUN install_packages bluez-deprecated bluez-btmon
 
 WORKDIR /app
 
-COPY --from=build /app/node_modules node_modules
+RUN install_packages
 
-COPY --from=build /app/dist dist
+COPY package*.json ./
+
+COPY tsconfig.json ./
+
+RUN JOBS=MAX npm install --unsafe-perm && npm cache verify && rm -rf /tmp/*
+
+COPY src ./
+
+RUN npm run build
 
 COPY start.sh ./
 

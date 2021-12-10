@@ -53,7 +53,7 @@ services:
       - zimnocieplo
 
   mqtt:
-    image: eclipse-mosquitto:1.6.15
+    image: eclipse-mosquitto
     restart: always
     ports:
       - '1883:1883'
