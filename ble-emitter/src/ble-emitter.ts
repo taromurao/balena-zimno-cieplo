@@ -14,15 +14,14 @@ const logger = baseLogger.child({ module: 'BleEmitter' });
 export class BleEmitter {
     beaconUUID: string = BEACON_UUID;
     tail = new Tail(path.join('/var', 'ble-emitter', SCAN_OUT));
-    $btmonLines = $btmonLines;
 
     async start() {
         logger.info('Starting BLE Emitter service...');
 
-        $estimate.subscribe(x => console.debug(x?.mean[0]));
+        $estimate.subscribe(x => console.debug(x?.mean[0][0]));
 
         this.tail.on("line", (data: string) => {
-            this.$btmonLines.next(data);
+            $btmonLines.next(data);
         });
 
         this.tail.on("error", function (error: any) {
@@ -55,7 +54,7 @@ $observation
             kFilter.filter({ previousCorrected, observation })),
         tap(x => $estimate.next(x)),
     )
-
+    .subscribe();
 
 function takeLastN(n: number) {
     return scan((acc: Array<string>, val: string) => {
