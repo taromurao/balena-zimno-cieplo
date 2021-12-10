@@ -5,7 +5,7 @@ import * as path from 'path';
 import { State } from 'kalman-filter';
 import { kFilter } from './kalman-filter';
 
-import { BEACON_UUID, RSSI_ENTRY_LINES, SCAN_OUT } from './consts';
+import { BEACON_UUID, RSSI_ENTRY_LINES, SCAN_OUT, TX_POWER } from './consts';
 import { baseLogger } from './logging';
 import { sleep } from './utils';
 
@@ -18,7 +18,7 @@ export class BleEmitter {
     async start() {
         logger.info('Starting BLE Emitter service...');
 
-        $estimate.subscribe(x => console.debug(x?.mean[0][0]));
+        $distance.subscribe(console.debug);
 
         this.tail.on("line", (data: string) => {
             $btmonLines.next(data);
@@ -40,12 +40,19 @@ const $observation = $btmonLines
     .pipe(
         takeLastN(RSSI_ENTRY_LINES),
         map(getRSSI),
-        filter(isNotNull),
+        filter(isNotNullOrUndefined),
         filter(uuidMatches),
         map(({ rssi }) => rssi),
     )
 
 const $estimate: BehaviorSubject<State> = new BehaviorSubject(null);
+
+const $distance: Observable<number> = $estimate
+    .pipe(
+        filter(isNotNullOrUndefined),
+        map(x => x.mean[0][0]),
+        map(getDistance),
+    )
 
 $observation
     .pipe(
@@ -63,8 +70,8 @@ function takeLastN(n: number) {
     }, [])
 }
 
-function isNotNull(x: any) {
-    return !(x === null);
+function isNotNullOrUndefined(x: any) {
+    return !(x === null || x === undefined);
 }
 
 function uuidMatches(rssi: RSSI): boolean {
@@ -74,6 +81,12 @@ function uuidMatches(rssi: RSSI): boolean {
 interface RSSI {
     uuid: string;
     rssi: number;
+}
+
+function getDistance(rssi: number): number {
+    const diff = TX_POWER - rssi;
+    return diff <= 0 ?
+        1 : Math.sqrt(diff) + 1;
 }
 
 /**
