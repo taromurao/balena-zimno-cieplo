@@ -44,6 +44,7 @@ export class BleEmitter {
         logger.info('Starting BLE Emitter service...');
 
         $emitWithInterval.subscribe(x => {
+            logger.info(`Current distance is ${x.current} m.`);
             this.mqttClient.publish(MQTT_DISTANCE_TOPIC, JSON.stringify(x));
         });
 
