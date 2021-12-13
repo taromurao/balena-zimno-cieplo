@@ -1,61 +1,32 @@
-import { exec } from 'child_process';
-import { promises as fs } from 'fs';
-import { getReadings } from './utils';
 import {
-    BEACON_UUID,
     DISTANCE_TORRELANCE,
-    SCAN_OUT,
-    SLEEP_DURATION,
-    TX_POWER,
+    MQTT_DISTANCE_TOPIC,
     VERY_CLOSE_DISTANCE
 } from './consts';
 import { baseLogger } from './logging';
 import { Message } from './message';
+import { Distance } from './distance';
+import { client } from './mqtt';
+import { tell } from './tell';
 
 const logger = baseLogger.child({ module: 'index' });
-
-async function sleep(ms) {
-    return await new Promise(resolve => setTimeout(resolve, ms));
-}
-
-function tell(msg: Message) {
-    logger.info(msg);
-}
-
-function average(xs: ReadonlyArray<number>): number {
-    return xs.reduce((acc, x) => (acc + x), 0) / xs.length;
-}
-
-function getDistance(rssis: ReadonlyArray<number>): number | undefined {
-    if (rssis.length === 0) {
-        return undefined;
-    } else {
-        const diff = TX_POWER - average(rssis);
-        return diff <= 0 ?
-            1 : Math.sqrt(diff) + 1;
-    }
-}
 
 function absoluteDiff(x: number, y: number): number {
     return Math.abs(x - y);
 }
 
-async function zimnoCieplo(previousDistance?: number): Promise<never> {
-    await sleep(SLEEP_DURATION);
-    const scanResult = await fs.readFile(SCAN_OUT, 'utf-8');
-    const signalStrengths = getReadings(scanResult);
-    const rssis = signalStrengths.filter(x => x.uuid == BEACON_UUID).map(x => x.rssi);
-    const currentDistance: number | undefined = getDistance(rssis);
-    logger.info(`Current distance: ${currentDistance}m`);
+function zimnoCieplo(distance: Distance): void {
+    const { current, previous } = distance;
+    logger.info(`Current distance: ${current} m`);
 
-    if (currentDistance) {
-        if (currentDistance <= VERY_CLOSE_DISTANCE) {
+    if (current) {
+        if (current <= VERY_CLOSE_DISTANCE) {
             tell(Message.VERY_CLOSE);
         } else {
-            if (absoluteDiff(previousDistance, currentDistance) < DISTANCE_TORRELANCE) {
+            if (absoluteDiff(previous, current) < DISTANCE_TORRELANCE) {
                 tell(Message.NOTHING);
             } else {
-                if (!previousDistance || currentDistance <= previousDistance) {
+                if (!previous || current <= previous) {
                     tell(Message.NEARING);
                 } else {
                     tell(Message.GETTING_FARTHER)
@@ -65,12 +36,19 @@ async function zimnoCieplo(previousDistance?: number): Promise<never> {
     } else {
         tell(Message.NOT_FOUND);
     }
-
-    await exec(`truncate -s 0 ${SCAN_OUT}`)
-    return await zimnoCieplo(currentDistance);
 };
 
-(async () => {
-    tell(Message.STARTING);
-    await zimnoCieplo();
-})();
+client.on('message', (topic, message) => {
+    try {
+        const distance = JSON.parse(message.toString());
+        zimnoCieplo(distance);
+    } catch (error) {
+        logger.error(error);
+    }
+});
+
+client.on('connect', () => {
+    client.subscribe(MQTT_DISTANCE_TOPIC, error => { });
+});
+
+tell(Message.STARTING);

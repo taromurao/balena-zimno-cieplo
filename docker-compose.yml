@@ -11,27 +11,34 @@ networks:
   zimnocieplo: null
 
 services:
-  # zinocieplo:
-  #   build: ./zimnocieplo
-  #   restart: always
-  #   privileged: true
-  #   environment:
-#     - PULSE_SERVER=tcp:audio:4317
-  #   depends_on:
-  #     - audio
-  #     - bluetooth
-  #   networks:
-  #     - zimnocieplo
+  zinocieplo:
+    build: ./zimnocieplo
+    restart: always
+    privileged: true
+    environment:
+      - PULSE_SERVER=unix:/run/pulse/pulseaudio.socket
+    depends_on:
+      - audio
+      - bluetooth
+    networks:
+      - zimnocieplo
+    volumes:
+      - 'pulse:/run/pulse'
 
   ble_emitter:
     build: ./ble-emitter
     network_mode: host
     restart: on_failure
+    depends_on:
+      - mqtt
     privileged: true
     cap_add:
       - NET_ADMIN
     volumes:
       - ble-emitter-data:/var/ble-emitter
+    environment:
+      - BEACON_UUID='4945d64b-57aa-cdb8-8b48-c487a2163f86'
+      - EMISSION_INTERVAL = 6000;
 
   bluetooth:
     image: tmigone/bluetooth:raspberrypi0-2w-64
@@ -49,37 +56,36 @@ services:
     privileged: true
     labels:
       io.balena.features.dbus: 1 # Only required for bluetooth support
-    networks:
-      - zimnocieplo
+    volumes:
+      - 'pulse:/run/pulse'
 
   mqtt:
     image: eclipse-mosquitto:1.6.15
     restart: always
-    ports:
-      - '1883:1883'
     networks:
       - zimnocieplo
-  
+    ports:
+      - '1883:1883'
       # connector:
-  #   image: balenablocks/connector:latest
-  #   restart: always
-  #   privileged: true
-  #   labels:
-  #     io.balena.features.balena-api: '1' # necessary to discover services
-  #     io.balena.features.supervisor-api: '1' # necessary to discover services in local mode
+      #   image: balenablocks/connector:latest
+      #   restart: always
+      #   privileged: true
+      #   labels:
+      #     io.balena.features.balena-api: '1' # necessary to discover services
+      #     io.balena.features.supervisor-api: '1' # necessary to discover services in local mode
 
-  # influxdb:
-  #   image: arm32v7/influxdb@sha256:2fed9b09a672cab330ac3ea1f03616e6821f2235bda64d549f605ef0d7081911
-  #   restart: always
-  #   privileged: false
-  #   volumes:
-  #     - 'influxdb-data:/var/lib/influxdb'
+      # influxdb:
+      #   image: arm32v7/influxdb@sha256:2fed9b09a672cab330ac3ea1f03616e6821f2235bda64d549f605ef0d7081911
+      #   restart: always
+      #   privileged: false
+      #   volumes:
+      #     - 'influxdb-data:/var/lib/influxdb'
 
-  # dashboard:
-  #   image: balenablocks/dashboard
-  #   restart: always
-  #   privileged: false
-  #   volumes:
-  #     - 'dashboard-data:/data'
-  #   ports:
-  #     - '80'
+      # dashboard:
+      #   image: balenablocks/dashboard
+      #   restart: always
+      #   privileged: false
+      #   volumes:
+      #     - 'dashboard-data:/data'
+      #   ports:
+      #     - '80'

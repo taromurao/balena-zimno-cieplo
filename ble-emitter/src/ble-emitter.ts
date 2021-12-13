@@ -14,8 +14,6 @@ import * as path from 'path';
 import { kFilter } from './k-filter';
 
 import {
-    BEACON_UUID,
-    EMISSION_INTERVAL,
     MQTT_DISTANCE_TOPIC,
     RSSI_ENTRY_LINES,
     SCAN_OUT,
@@ -29,7 +27,7 @@ import { client } from './mqtt';
 const logger = baseLogger.child({ module: 'BleEmitter' });
 
 export class BleEmitter {
-    beaconUUID: string = BEACON_UUID;
+    beaconUUID: string = process.env.BEACON_UUID;
     tail = new Tail(path.join('/var', 'ble-emitter', SCAN_OUT));
     mqttClient;
 
@@ -84,7 +82,7 @@ const $distance: Observable<number> = $estimate
 
 const $emitWithInterval: Observable<Distance> = $distance
     .pipe(
-        bufferTime(EMISSION_INTERVAL),
+        bufferTime(parseInt(process.env.EMISSION_INTERVAL)),
         map(takeLast),
         startWith(null),
         pairwise(),
@@ -120,7 +118,7 @@ function isNotNullOrUndefined(x: any) {
 }
 
 function uuidMatches(rssi: RSSI): boolean {
-    return rssi.uuid === BEACON_UUID;
+    return rssi.uuid === process.env.BEACON_UUID;
 }
 
 interface RSSI {
