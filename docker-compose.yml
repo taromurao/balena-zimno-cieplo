@@ -37,8 +37,8 @@ services:
     volumes:
       - ble-emitter-data:/var/ble-emitter
     environment:
-      - BEACON_UUID='4945d64b-57aa-cdb8-8b48-c487a2163f86'
-      - EMISSION_INTERVAL = 6000;
+      - BEACON_UUID=4945d64b-57aa-cdb8-8b48-c487a2163f86
+      - EMISSION_INTERVAL=6000
 
   bluetooth:
     image: tmigone/bluetooth:raspberrypi0-2w-64
