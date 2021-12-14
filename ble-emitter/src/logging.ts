@@ -3,7 +3,7 @@ import * as winston from 'winston';
 const { colorize, combine, metadata, timestamp, printf, splat } = winston.format;
 
 export const baseLogger = winston.createLogger({
-    level: 'debug',
+    level: process.env.LOG_LEVEL,
     transports: [
         new winston.transports.Console()
     ],

@@ -95,6 +95,7 @@ const $emitWithInterval: Observable<Distance> = $distance
 
 $observation
     .pipe(
+        tap(x => logger.debug(`current RSSI: ${x}`)),
         withLatestFrom($estimate),
         map(([observation, previousCorrected]) =>
             kFilter.filter({ previousCorrected, observation })),
@@ -127,9 +128,9 @@ interface RSSI {
 }
 
 function getDistance(rssi: number): number {
-    const diff = TX_POWER - rssi;
-    return diff <= 0 ?
-        1 : Math.sqrt(diff) + 1;
+    const diff = -50 - rssi;
+    const d = 0.3 * Math.pow(diff, 7 / 9) + 0.4
+    return diff <= 0 ? 1 : d;
 }
 
 /**

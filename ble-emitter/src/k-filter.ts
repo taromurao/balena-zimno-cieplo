@@ -5,8 +5,8 @@ export const kFilter = new KalmanFilter({
     dynamic: {
         name: 'constant-speed',
         // Assume we get 3 measurements between moves.
-        timeStep: 0.3,
+        timeStep: 0.7,
         // Assume small measurement errors.
-        covariance: [0.01, 0.01],
+        covariance: [0.02, 0.02],
     }
 });
