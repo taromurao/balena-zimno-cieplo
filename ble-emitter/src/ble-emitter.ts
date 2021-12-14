@@ -14,10 +14,10 @@ import * as path from 'path';
 import { kFilter } from './k-filter';
 
 import {
+    EMISSION_INTERVAL,
     MQTT_DISTANCE_TOPIC,
     RSSI_ENTRY_LINES,
     SCAN_OUT,
-    TX_POWER,
 } from './consts';
 import { baseLogger } from './logging';
 import { sleep } from './utils';
@@ -82,7 +82,7 @@ const $distance: Observable<number> = $estimate
 
 const $emitWithInterval: Observable<Distance> = $distance
     .pipe(
-        bufferTime(parseInt(process.env.EMISSION_INTERVAL)),
+        bufferTime(EMISSION_INTERVAL),
         map(takeLast),
         startWith(null),
         pairwise(),
