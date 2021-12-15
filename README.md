@@ -23,24 +23,48 @@ The price of a Bluetooth can vary significantly if you do not yet have one. With
 
 ## System overview
 
+Overview of the system is to be seen on the diagram below. One thing to note is that `BLE emitter` service can be replaced by any type of emitter, which emits current distance to, say, UWB, wifi, RFID etc.
+
 ![System overview](images/system-overview.png "System overview")
 
 
 ## `zimnocieplo` service
 
+`zimnocieplo` service receives JSON string encoded`Distance`
+
+```
+export interface Distance {
+    type: DistanceType;
+    previous: number | null;
+    current: number | null;
+}
+
+type DistanceType = 'BLE';
+```
+
+compares the current distance with the previious to give user an appropriate navigation. Interval between navigation steps is decided timing of message arrival, which is determined by the emitter service.
+
+![navigation](images/navigation.png "navigation")
+![algorithm](images/algorithm.png "algorithm")
+
 
 ## `BLE Emitter` service
 
+`BLE` service uses `Bluez` facility to scan nearby bluetooth devices periodically and outputs results to a file internally. Then the file contents are streamed to a JavaScript program running in the service to be further processed to be sent to the MQTT server with a defined interval.
 
-## `audio` and `bluetooth` services
 
+## `audio`, `bluetooth` and `mqtt` services
 
 These services are building blocks provided by the balena team:
 
 - [audio block](https://github.com/balenablocks/audio)
 - [bluetooth block](https://github.com/balenablocks/bluetooth)
 
+MQTT service is a bare Eclipse MQTT server. You can find the [Docker image on Dockerhub](https://hub.docker.com/_/eclipse-mosquitto/).
+
 
 ## Limitations
 
-Locationing with Bluetooth RSSI has a known issues of large fluctuations of measurements which leads to low accurary of distance measurements. This project is a no exception in the sense that the system goes back and forth between detecting and non-detecting states even at close distances of 0.5m to 1.5m. Another facet is that a user need to ssh into the bluetooth device and pair the headset, thouch which should be done only once.
+Locationing with Bluetooth RSSI has a known issues of large fluctuations of measurements which leads to low accurary of distance measurements. This project is a no exception. Though hoppings of data points are smoothend by Kalman filter to some degree. in the sense that the system goes back and forth between detecting and non-detecting states even at close distances of 0.5m to 1.5m. Another facet is that a user need to ssh into the bluetooth device and pair the headset, thouch which should be done only once.
+
+Note: Principles of Kalman filter is concisely documented on [this paper of G. A. Terejanu ](https://cse.sc.edu/~terejanu/files/tutorialEKF.pdf) and implemented by integrating this [JavaScript library](https://github.com/piercus/kalman-filter).
