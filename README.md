@@ -63,6 +63,10 @@ These services are building blocks provided by the balena team:
 MQTT service is a bare Eclipse MQTT server. You can find the [Docker image on Dockerhub](https://hub.docker.com/_/eclipse-mosquitto/).
 
 
+## To run Zimno Cieplo
+
+For `ble_emitter` service, set `BEACON_UUID` to your iBeacon tag's UUID, for `bluetooth` service, set `BLUETOOTH_CONNECT_DEVICE` to your Bluetooth headset's MAC address.
+
 ## Limitations
 
 Locationing with Bluetooth RSSI has a known issues of large fluctuations of measurements which leads to low accurary of distance measurements. This project is a no exception. Though hoppings of data points are smoothend by Kalman filter to some degree. Still the system goes back and forth between detecting and non-detecting states even at close distances of 0.5m to 1.5m, which is hard to correct with algorithms only. Another facet is that a user need to ssh into the bluetooth device and pair the headset, thouch which should be done only once.
