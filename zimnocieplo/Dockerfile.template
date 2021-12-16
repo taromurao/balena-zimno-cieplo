@@ -20,4 +20,6 @@ RUN npm run build
 
 RUN chmod +x start.sh
 
+ENV PULSE_SERVER=unix:/run/pulse/pulseaudio.socket
+
 CMD [ "/app/start.sh"]

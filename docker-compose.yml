@@ -15,8 +15,6 @@ services:
     build: ./zimnocieplo
     restart: always
     privileged: true
-    environment:
-      - PULSE_SERVER=unix:/run/pulse/pulseaudio.socket
     depends_on:
       - audio
       - bluetooth
